@@ -1,0 +1,78 @@
+/* 全局过渡动画 */
+* {
+    transition: background 0.2s, border 0.2s, color 0.2s;
+}
+
+/* 滚动条美化 */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 10px;
+}
+
+/* 暗黑模式滚动条 */
+.dark ::-webkit-scrollbar-track {
+    background: #2d2d2d;
+}
+.dark ::-webkit-scrollbar-thumb {
+    background: #555;
+}
+
+/* 毛玻璃背景 */
+.bg-blur {
+    backdrop-filter: blur(12px);
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+.dark .bg-blur {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* 输入框样式 */
+.input-box {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.2s;
+}
+.dark .input-box {
+    background: rgba(0, 0, 0, 0.3);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+.input-box:focus {
+    border-color: #165DFF;
+    box-shadow: 0 0 0 2px rgba(22, 93, 255, 0.3);
+    outline: none;
+}
+
+/* 按钮动画 */
+.btn-primary, .btn-light {
+    transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+}
+.btn-primary:active {
+    transform: scale(0.97);
+}
+
+/* 卡片悬浮效果 */
+.card-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+}
+
+/* 顶部标签激活 */
+.top-tab.active {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* 侧边菜单激活 */
+.nav-item.active {
+    background: rgba(22, 93, 255, 0.2);
+    color: white;
+}

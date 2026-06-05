@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>小薛云课 · 在线课程资源共享平台</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+    
+    <link rel="stylesheet" href="style.css"> <!-- 引入外部css样式 -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    backgroundImage: {
+                        'login-bg': "url('images/ban-ny2.jpg')",
+                        'dashboard-bg': "url('images/130410_20230425215834439201_0.jpg')"
+                    },
+                    colors: {
+                        primary: '#165DFF',
+                        secondary: '#0E42D2',
+                        success: '#00B42A',
+                        warning: '#FF7D00',
+                        danger: '#F53F3F',
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.3s ease-out',
+                        'slide-up': 'slideUp 0.35s ease-out',
+                        'scale-in': 'scaleIn 0.3s ease-out',
+                    },
+                    keyframes: {
+                        fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
+                        slideUp: { '0%': { transform: 'translateY(15px)', opacity: '0' }, '100%': { transform: 'translateY(0)', opacity: '1' } },
+                        scaleIn: { '0%': { transform: 'scale(0.96)', opacity: '0' }, '100%': { transform: 'scale(1)', opacity: '1' } }
+                    },
+                }
+            }
+        }
+    </script>
+    
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 transition-colors duration-300">
+
+<!-- 登录界面 -->
+<div id="loginPage" class="min-h-screen flex items-center justify-center p-4 animate-fade-in relative overflow-hidden bg-login-bg bg-cover bg-center bg-fixed">
+    <div class="absolute inset-0 bg-black/50"></div>
+    <div class="w-full max-w-md bg-blur rounded-2xl shadow-2xl p-8 animate-slide-up relative z-10 border border-white/30">
+        <div class="text-center mb-8">
+            <h2 class="text-2xl font-bold text-primary">🎓 小薛云课</h2>
+            <p class="text-gray-200 mt-2">在线课程 · 资源共享 · 智慧学习</p>
+        </div>
+        <div class="space-y-5">
+            <div>
+                <label class="block text-sm font-medium mb-1">用户名</label>
+                <input id="username" type="text" placeholder="请输入用户名" class="input-box w-full px-4 py-2.5 rounded-lg">
+            </div>
+            <div>
+                <label class="block text-sm font-medium mb-1">密码</label>
+                <input id="password" type="password" placeholder="请输入密码" class="input-box w-full px-4 py-2.5 rounded-lg">
+            </div>
+            <button onclick="login()" class="btn-primary w-full bg-primary text-white py-2.5 rounded-lg shadow-md hover:bg-secondary">登录系统</button>
+            <div class="text-xs text-center text-gray-300 pt-2">
+                体验账号: admin/admin (管理员) | teacher/teacher (教师) | user/user (学员)
+            </div>
+        </div>
+    </div>
+
+    <!-- 登录页版权 -->
+    <div class="absolute bottom-4 left-0 right-0 text-center text-xs text-gray-400 z-10">
+         ©小薛云课 版权所有 | 在线课程资源共享平台 <br>
+              薛文带领小组成员共同完成<br>
+          {刘志恒 胡奇军 杨江红 魏路涵 赵泽斌}
+
+    </div>
+</div>
+
+<!-- 主控台 -->
+<div id="mainPage" class="hidden min-h-screen flex flex-col bg-dashboard-bg bg-cover bg-center bg-fixed">
+    <header class="bg-gradient-to-r from-primary to-secondary text-white shadow-md sticky top-0 z-40 backdrop-blur-md bg-primary/90">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center flex-wrap gap-2">
+            <div class="flex items-center gap-4 flex-wrap">
+                <h2 class="text-lg font-bold">📚 小薛云课平台</h2>
+                <div class="flex gap-1" id="topTabContainer">
+                    <button onclick="switchTab('overview')" class="top-tab px-4 py-1.5 rounded-md text-sm font-medium transition active" id="tab-overview">📖 课程概览</button>
+                    <button onclick="switchTab('create')" class="top-tab px-4 py-1.5 rounded-md text-sm font-medium transition hover:bg-white/20" id="tab-create">➕ 创建课程</button>
+                    <button onclick="switchTab('student')" class="top-tab px-4 py-1.5 rounded-md text-sm font-medium transition hover:bg-white/20" id="tab-student">👥 学员管理</button>
+                    <button onclick="switchTab('stats')" class="top-tab px-4 py-1.5 rounded-md text-sm font-medium transition hover:bg-white/20" id="tab-stats">📊 数据统计</button>
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+                <button onclick="toggleDarkMode()" class="p-2 rounded-full hover:bg-white/10 transition">
+                    <i class="fa fa-moon-o dark:hidden"></i>
+                    <i class="fa fa-sun-o hidden dark:inline-block"></i>
+                </button>
+                <div class="flex items-center gap-2 bg-black/20 px-3 py-1.5 rounded-full">
+                    <i class="fa fa-user-circle"></i>
+                    <span id="currentUser" class="text-sm font-medium"></span>
+                </div>
+                <button onclick="logout()" class="text-sm px-3 py-1.5 bg-white/10 rounded-full hover:bg-white/20 transition">退出</button>
+            </div>
+        </div>
+    </header>
+    <div class="flex-1 flex">
+        <aside class="w-16 md:w-56 bg-blur flex-shrink-0 h-[calc(100vh-56px)] sticky top-[56px] overflow-y-auto border-r border-white/10">
+            <div class="py-5 flex flex-col gap-1">
+                <button onclick="switchSideMenu('todo')" class="nav-item active w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all" id="menu-todo">
+                    <i class="fa fa-tasks w-5"></i><span class="hidden md:inline">待办事项</span>
+                </button>
+                <button onclick="switchSideMenu('course')" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all" id="menu-course">
+                    <i class="fa fa-folder-open w-5"></i><span class="hidden md:inline">课程分类</span>
+                </button>
+                <button onclick="switchSideMenu('system')" class="nav-item w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all" id="menu-system">
+                    <i class="fa fa-sliders w-5"></i><span class="hidden md:inline">系统设置</span>
+                </button>
+            </div>
+        </aside>
+        <main class="flex-1 p-4 md:p-6 overflow-auto">
+            <!-- 课程概览 -->
+            <div id="page-overview" class="block animate-fade-in">
+                <div class="flex flex-wrap justify-between items-center mb-6">
+                    <h3 class="text-xl font-bold">📌 课程资源库</h3>
+                    <button onclick="renderList()" class="bg-primary/20 text-primary px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-primary/30 transition">
+                        <i class="fa fa-refresh"></i> 刷新
+                    </button>
+                </div>
+                <div class="bg-blur p-5 rounded-xl mb-6">
+                    <div class="flex flex-wrap gap-4 items-center">
+                        <div class="flex-1 min-w-[200px]">
+                            <input id="searchInput" placeholder="🔍 搜索课程" oninput="renderList()" class="input-box w-full px-4 py-2 rounded-lg">
+                        </div>
+                        <select id="categoryFilter" onchange="renderList()" class="input-box px-4 py-2 rounded-lg">
+                            <option value="all">全部分类</option>
+                        </select>
+                        <select id="statusFilter" onchange="renderList()" class="input-box px-4 py-2 rounded-lg">
+                            <option value="all">全部状态</option>
+                            <option value="pending">待审核</option>
+                            <option value="approved">已通过</option>
+                        </select>
+                        <button onclick="resetFilter()" class="bg-white/10 px-4 py-2 rounded-lg hover:bg-white/20 transition">重置筛选</button>
+                    </div>
+                </div>
+                <div class="bg-blur rounded-xl overflow-hidden">
+                    <div class="flex border-b border-white/10">
+                        <button onclick="switchListTab('pending')" class="px-5 py-2.5 text-sm font-medium transition" id="tab-pending">⏳ 待审核</button>
+                        <button onclick="switchListTab('all')" class="px-5 py-2.5 text-sm font-medium transition active" id="tab-all">📚 全部课程</button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full min-w-[700px]">
+                            <thead class="bg-white/10">
+                                <tr>
+                                    <th class="px-6 py-3 text-left">课程名称</th>
+                                    <th class="px-6 py-3 text-left">分类</th>
+                                    <th class="px-6 py-3 text-left">参与人数</th>
+                                    <th class="px-6 py-3 text-left">状态</th>
+                                    <th class="px-6 py-3 text-right">操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="courseTableBody"></tbody>
+                        </table>
+                    </div>
+                    <div id="pagination" class="flex flex-wrap justify-center gap-2 py-4 border-t border-white/10"></div>
+                </div>
+            </div>
+
+            <!-- 课程创建 -->
+            <div id="page-create" class="hidden animate-fade-in">
+                <h3 class="text-xl font-bold mb-5">✨ 创建新课程</h3>
+                <div class="bg-blur rounded-xl p-6">
+                    <div class="grid md:grid-cols-2 gap-5">
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium mb-1">课程名称 *</label>
+                            <input id="newCourseName" class="input-box w-full px-4 py-2 rounded-lg">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-1">课程分类</label>
+                            <select id="newCourseCategory" class="input-box w-full px-4 py-2 rounded-lg"></select>
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium mb-1">课程简介 *</label>
+                            <textarea id="newCourseDesc" rows="3" class="input-box w-full px-4 py-2 rounded-lg"></textarea>
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium mb-1">课程封面 (≤5MB)</label>
+                            <input type="file" id="newCourseCover" accept="image/*" onchange="previewNewCover()" class="mb-2">
+                            <img id="newCoverPreview" class="h-32 object-cover rounded-lg hidden border border-white/20">
+                        </div>
+                    </div>
+                    <button onclick="publishNewCourse()" class="btn-primary mt-5 bg-primary text-white px-6 py-2.5 rounded-lg hover:bg-secondary">🚀 发布课程</button>
+                </div>
+            </div>
+
+            <!-- 学员管理 -->
+            <div id="page-student" class="hidden animate-fade-in">
+                <div class="flex justify-between items-center mb-5">
+                    <h3 class="text-xl font-bold">👩‍🎓 学员与教师管理</h3>
+                </div>
+                <div class="bg-blur rounded-xl overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full min-w-[800px]">
+                            <thead class="bg-white/10">
+                                <tr>
+                                    <th class="px-6 py-3 text-left">用户名</th>
+                                    <th class="px-6 py-3 text-left">角色</th>
+                                    <th class="px-6 py-3 text-left">已选课程</th>
+                                    <th class="px-6 py-3 text-center">选课操作</th>
+                                    <th class="px-6 py-3 text-left">管理</th>
+                                </tr>
+                            </thead>
+                            <tbody id="studentTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 数据统计 -->
+            <div id="page-stats" class="hidden animate-fade-in">
+                <h3 class="text-xl font-bold mb-5">📈 平台运营看板</h3>
+                <div class="grid md:grid-cols-4 gap-5 mb-6">
+                    <div class="bg-blur p-5 rounded-xl">
+                        <div class="flex items-center gap-3">
+                            <i class="fa fa-book fa-2x text-primary"></i>
+                            <div>
+                                <p class="text-gray-400">课程总数</p>
+                                <p id="statsCourseCount" class="text-2xl font-bold">0</p>
+                            </div>
+                        </div>
+                        <div class="flex justify-between mt-3 text-sm">
+                            <span>✅ 已审核</span>
+                            <span id="statsApprovedCourse">0</span>
+                            <span>⏳ 待审核</span>
+                            <span id="statsPendingCourse">0</span>
+                        </div>
+                    </div>
+                    <div class="bg-blur p-5 rounded-xl">
+                        <i class="fa fa-chalkboard-teacher fa-2x text-primary"></i>
+                        <p class="text-gray-400 mt-1">教师总数</p>
+                        <p id="statsTeacherCount" class="text-2xl font-bold">0</p>
+                    </div>
+                    <div class="bg-blur p-5 rounded-xl">
+                        <i class="fa fa-users fa-2x text-primary"></i>
+                        <p class="text-gray-400 mt-1">普通学员</p>
+                        <p id="statsUserCount" class="text-2xl font-bold">0</p>
+                    </div>
+                    <div class="bg-blur p-5 rounded-xl">
+                        <i class="fa fa-line-chart fa-2x text-primary"></i>
+                        <p class="text-gray-400 mt-1">总选课人次</p>
+                        <p id="statsTotalEnroll" class="text-2xl font-bold">0</p>
+                    </div>
+                </div>
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="bg-blur p-5 rounded-xl">
+                        <h4 class="font-medium mb-3">📊 课程状态分布</h4>
+                        <canvas id="courseChart" height="200"></canvas>
+                    </div>
+                    <div class="bg-blur p-5 rounded-xl">
+                        <h4 class="font-medium mb-3">👥 用户角色分布</h4>
+                        <canvas id="userChart" height="200"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 课程分类 -->
+            <div id="page-course" class="hidden animate-fade-in">
+                <div class="flex justify-between items-center mb-5">
+                    <h3 class="text-xl font-bold">🏷️ 课程分类管理</h3>
+                    <button onclick="openAddCategoryModal()" class="btn-primary bg-primary text-white px-4 py-2 rounded-lg hover:bg-secondary">
+                        <i class="fa fa-plus"></i> 新增分类
+                    </button>
+                </div>
+                <div class="bg-blur rounded-xl p-6" id="categoryListContainer"></div>
+            </div>
+
+            <!-- 系统设置 -->
+            <div id="page-system" class="hidden animate-fade-in">
+                <h3 class="text-xl font-bold mb-5">⚙️ 系统设置</h3>
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="bg-blur rounded-xl p-6">
+                        <h4 class="font-medium text-lg">🔐 账号安全</h4>
+                        <div class="mt-4 space-y-3">
+                            <label class="block text-sm">用户名</label>
+                            <input id="sysUsername" type="text" readonly class="input-box w-full px-3 py-2 rounded-lg">
+                            <label class="block text-sm">新密码</label>
+                            <input id="sysNewPwd" type="password" placeholder="留空则不修改" class="input-box w-full px-3 py-2 rounded-lg">
+                            <button onclick="updatePassword()" class="mt-3 bg-primary text-white px-4 py-2 rounded-lg w-full hover:bg-secondary">更新密码</button>
+                        </div>
+                    </div>
+                    <div class="bg-blur rounded-xl p-6">
+                        <h4 class="font-medium text-lg">🎨 界面配置</h4>
+                        <div class="flex justify-between mt-4 items-center">
+                            <span>暗黑模式</span>
+                            <button onclick="toggleDarkMode()" class="px-4 py-1 rounded-full border border-white/20 hover:bg-white/10 transition">切换主题</button>
+                        </div>
+                        <div class="mt-6 text-sm text-gray-400">数据存储于浏览器本地，安全可靠。</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 控制台底部版权 -->
+    <div class="w-full text-center text-sm py-5 text-white bg-black/30">
+        ©小薛云课 版权所有 | 在线课程资源共享平台 <br>
+              薛文带领小组成员共同完成<br>
+          {刘志恒 胡奇军 杨江红 魏路涵 赵泽斌}
+    </div>
+</div>
+
+<!-- 课程详情模态框 -->
+<div id="detailModal" class="fixed inset-0 bg-black/70 z-50 hidden items-center justify-center p-4">
+    <div class="bg-blur max-w-2xl w-full rounded-2xl p-6 animate-scale-in max-h-[90vh] overflow-y-auto" onclick="event.stopPropagation()">
+        <div class="flex justify-between items-center mb-3">
+            <h3 class="font-bold text-xl" id="detailTitle"></h3>
+            <button onclick="closeDetail()" class="text-2xl w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10 transition">&times;</button>
+        </div>
+        <img id="detailImg" class="w-full h-48 object-cover rounded-lg mb-3">
+        <p class="text-sm mb-1"><span class="text-primary">分类：</span><span id="detailCategory"></span></p>
+        <p id="detailDesc" class="mb-2"></p>
+        <p class="text-sm">发布人：<span id="detailAuthor"></span> | 状态：<span id="detailStatus"></span></p>
+        <button id="enrollModalBtn" onclick="toggleSelectCourse()" class="btn-primary w-full mt-4 py-2 rounded-lg hover:bg-secondary">📖 选课学习</button>
+        <div class="mt-5 border-t border-white/20 pt-4">
+            <h4 class="font-medium mb-2">💬 课程讨论</h4>
+            <div class="flex gap-2 mb-3">
+                <input id="commentInput" placeholder="写下你的评价..." class="input-box flex-1 px-3 py-2 rounded-lg">
+                <button onclick="addComment()" class="bg-primary/20 text-primary px-4 rounded-lg hover:bg-primary/30 transition">发送</button>
+            </div>
+            <div id="commentList" class="max-h-48 overflow-y-auto space-y-2"></div>
+        </div>
+        <button onclick="closeDetail()" class="btn-light w-full mt-3 py-2 rounded-lg border border-white/20 hover:bg-white/10 transition">关闭</button>
+    </div>
+</div>
+
+<!-- 分类弹窗 -->
+<div id="categoryModal" class="fixed inset-0 bg-black/70 z-50 hidden items-center justify-center">
+    <div class="bg-blur max-w-md w-full rounded-xl p-6 animate-scale-in" onclick="event.stopPropagation()">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="font-bold text-lg" id="categoryModalTitle">添加分类</h3>
+            <button onclick="closeCategoryModal()" class="text-xl w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10 transition">&times;</button>
+        </div>
+        <div class="mb-4">
+            <label class="block text-sm font-medium mb-1">分类名称</label>
+            <input id="categoryName" class="input-box w-full px-4 py-2 rounded-lg">
+        </div>
+        <div class="mb-4">
+            <label class="block text-sm font-medium mb-1">图标 (fa-xxx)</label>
+            <input id="categoryIcon" placeholder="fa-book" class="input-box w-full px-4 py-2 rounded-lg">
+        </div>
+        <button onclick="saveCategory()" class="btn-primary w-full bg-primary text-white py-2 rounded-lg hover:bg-secondary">保存</button>
+    </div>
+</div>
+
+<!-- 引入外部JS -->
+<script src="app.js"></script>
+</body>
+</html>
